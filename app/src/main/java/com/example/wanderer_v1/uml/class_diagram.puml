@@ -1,0 +1,123 @@
+@startuml
+
+package com.example.wanderer_v1 {
+    class MainActivity {
+        - binding: ActivityMainBinding
+        - fragmentMap: HashMap<Int, Fragment>
+        + onCreate(savedInstanceState: Bundle)
+        + setupBottomNavigationBar()
+    }
+
+    class LoginActivity {
+        - binding: ActivityLoginBinding
+        + onCreate(savedInstanceState: Bundle)
+        + btnLogin.setOnClickListener()
+        + toRegistActivity.setOnClickListener()
+    }
+
+    class RegisterActivity {
+        - binding: ActivityRegisterBinding
+        + onCreate(savedInstanceState: Bundle)
+        + btnSignup.setOnClickListener()
+        + backFromRegist.setOnClickListener()
+    }
+
+    class ProfileFragment {
+        - binding: FragmentProfileBinding
+        - uri: Uri
+        + onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+        + loadUserInfo()
+        + selectImage()
+        + uploadProfileImage()
+        + resultLauncher(ActivityResultContracts.StartActivityForResult)
+        + onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
+    }
+
+    class NewEntryFragment {
+        - binding: FragmentNewentryBinding
+        - selectedPoint: Point?
+        - placemark: PlacemarkMapObject?
+        - selectedUri: Uri?
+        + onCreate(savedInstanceState: Bundle)
+        + onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+        + onViewCreated(view: View, savedInstanceState: Bundle?)
+        + saveEntryToFirebase()
+        + uploadImage(entryId: String)
+        + selectImage()
+        + openMap()
+        + hideMap()
+        + saveLocationToDatabase(point: Point)
+        + onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
+        + clearFields()
+        + initializeMap()
+        + handleMapTap(point: Point)
+        + getAddress(latitude: Double, longitude: Double): String?
+        + onStart()
+        + onStop()
+        + onDestroyView()
+        + onSaveInstanceState(outState: Bundle)
+        + setApiKey(savedInstanceState: Bundle?)
+    }
+
+    class Place {
+        - userId: String?
+        - title: String?
+        - description: String?
+        - latitude: Double?
+        - longitude: Double?
+        - address: String?
+        - imageUri: String?
+    }
+
+    class PlaceAdapter {
+        - places: List<Place>
+        + onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder
+        + onBindViewHolder(holder: PlaceViewHolder, position: Int)
+        + getItemCount(): Int
+    }
+
+    class PlaceViewHolder {
+        - binding: ItemPlaceBinding
+        + bind(place: Place)
+    }
+
+    class TapeFragment {
+        - binding: FragmentTapeBinding
+        - placeAdapter: PlaceAdapter
+        - databaseReference: DatabaseReference
+        - placeList: List<Place>
+        + onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+        + onViewCreated(view: View, savedInstanceState: Bundle?)
+        + fetchPlaces()
+    }
+
+    class ImageAdapter {
+        - images: List<Uri>
+        + onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder
+        + onBindViewHolder(holder: ImageViewHolder, position: Int)
+        + getItemCount(): Int
+    }
+
+    class ImageViewHolder {
+        - binding: ItemImageBinding
+        + bind(uri: Uri)
+    }
+}
+
+MainActivity --> LoginActivity
+MainActivity --> RegisterActivity
+MainActivity *-- NewEntryFragment
+MainActivity *-- ProfileFragment
+MainActivity *-- TapeFragment
+
+NewEntryFragment --> ImageAdapter
+
+
+TapeFragment --> Place
+TapeFragment --> PlaceAdapter
+
+PlaceAdapter ..> PlaceViewHolder
+
+ImageAdapter ..> ImageViewHolder
+
+@enduml

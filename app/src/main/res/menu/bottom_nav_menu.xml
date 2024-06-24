@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/tape"
+        android:title="Лента"
+        android:icon="@drawable/home_24"/>
+    <item
+        android:id="@+id/new_entry"
+        android:title="Добавить место"
+        android:icon="@drawable/add_24"/>
+    <item
+        android:id="@+id/profile"
+        android:title="Профиль"
+        android:icon="@drawable/user_24"/>
+</menu>
