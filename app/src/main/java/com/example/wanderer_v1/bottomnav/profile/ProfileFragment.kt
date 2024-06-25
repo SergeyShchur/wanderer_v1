@@ -13,7 +13,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.wanderer_v1.LoginActivity
+import com.example.wanderer_v1.databinding.DialogAppInfoBinding
 import com.example.wanderer_v1.databinding.FragmentProfileBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -38,6 +40,10 @@ class ProfileFragment : Fragment() {
         binding.logoutBtn.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
             startActivity(Intent(requireContext(), LoginActivity::class.java))
+        }
+
+        binding.showDialogButton.setOnClickListener {
+            showAppInfoDialog()
         }
 
         return binding.root
@@ -100,4 +106,18 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
+
+    private fun showAppInfoDialog() {
+        val dialogBinding = DialogAppInfoBinding.inflate(layoutInflater)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.closeDialogButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
 }

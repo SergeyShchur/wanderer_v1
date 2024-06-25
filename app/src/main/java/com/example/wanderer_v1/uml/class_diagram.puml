@@ -1,123 +1,114 @@
 @startuml
 
-package com.example.wanderer_v1 {
-    class MainActivity {
-        - binding: ActivityMainBinding
-        - fragmentMap: HashMap<Int, Fragment>
-        + onCreate(savedInstanceState: Bundle)
-        + setupBottomNavigationBar()
-    }
+package "Model" {
+  class Place {
+    - id: String
+    - name: String
+    - description: String
+    - latitude: Double
+    - longitude: Double
+    - imageUrl: String
+    - userId: String
+  }
 
-    class LoginActivity {
-        - binding: ActivityLoginBinding
-        + onCreate(savedInstanceState: Bundle)
-        + btnLogin.setOnClickListener()
-        + toRegistActivity.setOnClickListener()
-    }
+  class User {
+    - id: String
+    - email: String
+    - displayName: String
+  }
 
-    class RegisterActivity {
-        - binding: ActivityRegisterBinding
-        + onCreate(savedInstanceState: Bundle)
-        + btnSignup.setOnClickListener()
-        + backFromRegist.setOnClickListener()
-    }
+  class PlaceRepository {
+    + getAllPlaces(): LiveData<List<Place>>
+    + addPlace(place: Place)
+    + getPlaceById(id: String): LiveData<Place>
+  }
 
-    class ProfileFragment {
-        - binding: FragmentProfileBinding
-        - uri: Uri
-        + onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
-        + loadUserInfo()
-        + selectImage()
-        + uploadProfileImage()
-        + resultLauncher(ActivityResultContracts.StartActivityForResult)
-        + onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
-    }
+  class UserRepository {
+    + registerUser(email: String, password: String): LiveData<User>
+    + loginUser(email: String, password: String): LiveData<User>
+    + getCurrentUser(): LiveData<User>
+  }
 
-    class NewEntryFragment {
-        - binding: FragmentNewentryBinding
-        - selectedPoint: Point?
-        - placemark: PlacemarkMapObject?
-        - selectedUri: Uri?
-        + onCreate(savedInstanceState: Bundle)
-        + onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
-        + onViewCreated(view: View, savedInstanceState: Bundle?)
-        + saveEntryToFirebase()
-        + uploadImage(entryId: String)
-        + selectImage()
-        + openMap()
-        + hideMap()
-        + saveLocationToDatabase(point: Point)
-        + onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
-        + clearFields()
-        + initializeMap()
-        + handleMapTap(point: Point)
-        + getAddress(latitude: Double, longitude: Double): String?
-        + onStart()
-        + onStop()
-        + onDestroyView()
-        + onSaveInstanceState(outState: Bundle)
-        + setApiKey(savedInstanceState: Bundle?)
-    }
+  class FirebaseAuthService {
+    + registerUser(email: String, password: String)
+    + loginUser(email: String, password: String)
+    + logoutUser()
+    + getCurrentUser(): FirebaseUser
+  }
 
-    class Place {
-        - userId: String?
-        - title: String?
-        - description: String?
-        - latitude: Double?
-        - longitude: Double?
-        - address: String?
-        - imageUri: String?
-    }
+  class FirebaseDatabaseService {
+    + getAllPlaces(): LiveData<List<Place>>
+    + addPlace(place: Place)
+    + getPlaceById(id: String): LiveData<Place>
+  }
 
-    class PlaceAdapter {
-        - places: List<Place>
-        + onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder
-        + onBindViewHolder(holder: PlaceViewHolder, position: Int)
-        + getItemCount(): Int
-    }
-
-    class PlaceViewHolder {
-        - binding: ItemPlaceBinding
-        + bind(place: Place)
-    }
-
-    class TapeFragment {
-        - binding: FragmentTapeBinding
-        - placeAdapter: PlaceAdapter
-        - databaseReference: DatabaseReference
-        - placeList: List<Place>
-        + onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
-        + onViewCreated(view: View, savedInstanceState: Bundle?)
-        + fetchPlaces()
-    }
-
-    class ImageAdapter {
-        - images: List<Uri>
-        + onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder
-        + onBindViewHolder(holder: ImageViewHolder, position: Int)
-        + getItemCount(): Int
-    }
-
-    class ImageViewHolder {
-        - binding: ItemImageBinding
-        + bind(uri: Uri)
-    }
+  class FirebaseStorageService {
+    + uploadImage(imageUri: Uri): LiveData<String>
+  }
 }
 
-MainActivity --> LoginActivity
-MainActivity --> RegisterActivity
-MainActivity *-- NewEntryFragment
-MainActivity *-- ProfileFragment
-MainActivity *-- TapeFragment
+package "ViewModel" {
+  class MapViewModel {
+    + places: LiveData<List<Place>>
+    + addPlace(place: Place)
+    + getPlaceById(id: String): LiveData<Place>
+  }
 
-NewEntryFragment --> ImageAdapter
+  class LoginViewModel {
+    + user: LiveData<FirebaseUser>
+    + registerUser(email: String, password: String)
+    + loginUser(email: String, password: String)
+    + logoutUser()
+  }
 
+  class RegisterViewModel {
+    + user: LiveData<FirebaseUser>
+    + registerUser(email: String, password: String)
+  }
+}
 
-TapeFragment --> Place
-TapeFragment --> PlaceAdapter
+package "View" {
+  class MainActivity {
+    + onCreate()
+    + onMapReady()
+  }
 
-PlaceAdapter ..> PlaceViewHolder
+  class LoginActivity {
+    + onCreate()
+    + onLogin()
+  }
 
-ImageAdapter ..> ImageViewHolder
+  class RegisterActivity {
+    + onCreate()
+    + onRegister()
+  }
+
+  class MapFragment {
+    + onViewCreated()
+  }
+
+  class PlaceDetailFragment {
+    + onViewCreated()
+  }
+
+  class AddPlaceFragment {
+    + onViewCreated()
+  }
+}
+
+Model.FirebaseAuthService --> Model.UserRepository
+Model.FirebaseDatabaseService --> Model.PlaceRepository
+Model.FirebaseStorageService --> Model.PlaceRepository
+ViewModel.MapViewModel --> Model.PlaceRepository
+ViewModel.LoginViewModel --> Model.UserRepository
+ViewModel.RegisterViewModel --> Model.UserRepository
+ViewModel.MapViewModel --> View.MapFragment
+ViewModel.MapViewModel --> View.MainActivity
+ViewModel.LoginViewModel --> View.LoginActivity
+ViewModel.RegisterViewModel --> View.RegisterActivity
+View.MapFragment --> View.PlaceDetailFragment
+View.MapFragment --> View.AddPlaceFragment
+Model.Place --> Model.User
 
 @enduml
+
